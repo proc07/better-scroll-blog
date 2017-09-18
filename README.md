@@ -7,6 +7,12 @@ better-scroll [1.2.2] 源码分析
 
 >  如果对您有帮助，您可以点右上角 "Star" 支持我一下 谢谢！ ^_^
 
-## better-scroll核心
+## better-scroll 私有方法和参数
 
-* 文本
+core.js
+
+* _start
+
+* _move
+
+* _end
