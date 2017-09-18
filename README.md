@@ -18,7 +18,7 @@ better-scroll [1.2.2] 源码分析
 * _end
 
 * _resize
-	当窗口的尺寸改变时，重新调用refresh，为了优化性能做了延时
+当窗口的尺寸改变时，重新调用refresh，为了优化性能做了延时
 * _startProbe
 
 * _transitionTime
