@@ -27,20 +27,20 @@ better-scroll [1.2.2] 源码分析
 	
 * _transitionTime
 
-	作用：
+	作用：该方法会设置运动时间，不传参数默认为0，即没有动画
 
 * _transitionTimingFunction
 
-	作用：
+	作用：该方法设置运动的类型(贝塞尔曲线)
 
 * _transitionEnd
 
-	作用：
+	作用：滚动完，transition过渡结束后触发，清除参数
 
 * _translate
 
-	作用：
+	作用：该方法执行元素滚动到指定位置 默认translate滚动，兼容定位left、top
 
 * _animate
 
-	作用：
+	作用：原生定位(left、top)来滚动的位置，使用 requestAnimationFrame 作为定时器
