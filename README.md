@@ -9,7 +9,7 @@ better-scroll [1.2.2] 源码分析
 
 ## better-scroll 私有方法和参数
 
-core.js
+####core.js
 
 * _start
 
