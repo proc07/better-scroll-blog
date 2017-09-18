@@ -19,16 +19,28 @@ better-scroll [1.2.2] 源码分析
 
 * _resize
 	
-	当窗口的尺寸改变时，重新调用refresh，为了优化性能做了延时
-	
-* _startProbe
+	作用：当窗口的尺寸改变时，重新调用refresh，为了优化性能做了延时
 
+* _startProbe
+	
+	作用：当options.probeType = 3时，滚动的时候实时派发scroll事件(left、top值)
+	
 * _transitionTime
+
+	作用：
 
 * _transitionTimingFunction
 
+	作用：
+
 * _transitionEnd
+
+	作用：
 
 * _translate
 
+	作用：
+
 * _animate
+
+	作用：
