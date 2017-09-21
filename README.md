@@ -20,12 +20,7 @@ BScroll.prototype._addDOMEvents = function () {
 
 BScroll.prototype._handleDOMEvents = function (eventOperation) {
     let target = this.options.bindToWrapper ? this.wrapper : window
-    eventOperation(window, 'orientationchange', this)
-    eventOperation(window, 'resize', this)
-
-    if (this.options.click) {
-      eventOperation(this.wrapper, 'click', this, true)
-    }
+    // ...
 
     if (!this.options.disableMouse) {
       eventOperation(this.wrapper, 'mousedown', this)
@@ -34,14 +29,7 @@ BScroll.prototype._handleDOMEvents = function (eventOperation) {
       eventOperation(target, 'mouseup', this)
     }
 
-    if (hasTouch && !this.options.disableTouch) {
-      eventOperation(this.wrapper, 'touchstart', this)
-      eventOperation(target, 'touchmove', this)
-      eventOperation(target, 'touchcancel', this)
-      eventOperation(target, 'touchend', this)
-    }
-
-    eventOperation(this.scroller, style.transitionEnd, this)
+    // ...
   }
 ```
 what? this 竟然被填写在了绑定事件里。搜索了下发现这么个东西 [动态改变事件处理器](http://www.tuicool.com/articles/JZrUB3z)。
