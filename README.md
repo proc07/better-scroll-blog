@@ -63,46 +63,6 @@ BScroll.prototype.handleEvent = function (e) {
   }
 ```
 
-方法 `handleEvent` 中对移动端与PC端事件同时处理及 transitionend 兼容各个浏览器。
+方法 `handleEvent` 中对移动端与PC端事件同时处理调用内置的 `_start` `_move` `_end`... 方法，下面来对分析。
 
-在下面来分析 `_start` `_move` `_end`... 方法之前。BScroll 在 `_init` 初始化函数内会调用 `refresh` 方法来重新计算。
-
-```javascript
-BScroll.prototype.refresh = function () {
-    // 浏览器为了取得正确的值会触发重排
-    let rf = this.wrapper.offsetHeight
-
-    this.wrapperWidth = parseInt(this.wrapper.style.width) || this.wrapper.clientWidth
-    this.wrapperHeight = parseInt(this.wrapper.style.height) || this.wrapper.clientHeight
-
-    this.scrollerWidth = parseInt(this.scroller.style.width) || this.scroller.clientWidth
-    this.scrollerHeight = parseInt(this.scroller.style.height) || this.scroller.clientHeight
-
-    const wheel = this.options.wheel
-    if (wheel) {
-      // some code here...
-    } else {
-      // 计算出 X、Y 轴最大可以滚动的范围
-      this.maxScrollX = this.wrapperWidth - this.scrollerWidth
-      this.maxScrollY = this.wrapperHeight - this.scrollerHeight
-    }
-    // 当前是否在水平方向滚动
-    this.hasHorizontalScroll = this.options.scrollX && this.maxScrollX < 0
-    // 当前是否在垂直方向滚动
-    this.hasVerticalScroll = this.options.scrollY && this.maxScrollY < 0
-     	
-    // 不为水平方向时，将水平方向的值清除
-    if (!this.hasHorizontalScroll) {
-      this.maxScrollX = 0
-      this.scrollerWidth = this.wrapperWidth
-    }
-    // 不为垂直方向时，将垂直方向的值清除
-    if (!this.hasVerticalScroll) {
-      this.maxScrollY = 0
-      this.scrollerHeight = this.wrapperHeight
-    }
-    
-    // ...
-  }
-```
 
