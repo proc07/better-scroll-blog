@@ -1,21 +1,28 @@
 better-scroll [1.2.2] 源码分析
 ===========================
 ## 说明
->  在源码中若有分析不对或者某个方法没说明清楚，请直接在 Issues 中提出，我会尽快修改！
+>  在源码中若有分析不对或者没说明清楚，请直接在 Issues 中提出，我会尽快修改！
 
->  由于插件作者已经编写`公有`的使用方法和参数写成[文档](https://ustbhuangyi.github.io/better-scroll/doc/options.html "better-scroll 最新文档")，所以下面我将私有的方法和参数进行总结说明。
+>  better-scroll使用方法和参数写成[官方文档](https://ustbhuangyi.github.io/better-scroll/doc/options.html "better-scroll 最新文档")，所以下面我将私有的方法和参数进行总结说明。
 
 >  如果对您有帮助，您可以点右上角 "Star" 支持我一下 谢谢！ ^_^
 
-## better-scroll 私有方法和参数
+
+## better-scroll 私有方法及内置变量
 
 ### core.js
 
 * _start
+	
+	作用：函数对应 start 类型事件
 
 * _move
 
+	作用：函数对应 move 类型事件。
+
 * _end
+
+	作用：函数对应 end 类型事件
 
 * _resize
 	
@@ -39,8 +46,8 @@ better-scroll [1.2.2] 源码分析
 
 * _translate
 
-	作用：该方法执行元素滚动到指定位置 默认translate滚动，兼容定位left、top
+	作用：是平移运动的核心函数。支持 transform 和 left 两种移动方式
 
 * _animate
 
-	作用：原生定位(left、top)来滚动的位置，使用 requestAnimationFrame 作为定时器
+	作用：使用 requestAnimationFrame 作为定时器来滚动到指定的位置
