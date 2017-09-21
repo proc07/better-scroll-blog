@@ -102,12 +102,7 @@ BScroll.prototype.refresh = function () {
       this.scrollerHeight = this.wrapperHeight
     }
     
-    // wrapper 元素到body之间的距离
-    this.wrapperOffset = offset(this.wrapper)
-    // 重新计算snap组件中pages参数
-    this.trigger('refresh')
-    // 如果超出滚动范围之外，则滚动回 0 或 maxScroll 位置
-    this.resetPosition()
+    // ...
   }
 ```
 
