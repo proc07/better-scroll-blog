@@ -12,30 +12,30 @@ better-scroll [1.2.2] 源码分析
 首先 better-scroll 是滚动插件，必然是触发`touchstart`、`touchmove`、`touchend`事件。在 inint.js 文件中 `_handleDOMEvents` 函数注册了该事件。
 
 ```javascript
-	BScroll.prototype._handleDOMEvents = function (eventOperation) {
-	    let target = this.options.bindToWrapper ? this.wrapper : window
-	    eventOperation(window, 'orientationchange', this)
-	    eventOperation(window, 'resize', this)
-	    
-	    if (this.options.click) {
-	      eventOperation(this.wrapper, 'click', this, true)
-	    }
+BScroll.prototype._handleDOMEvents = function (eventOperation) {
+    let target = this.options.bindToWrapper ? this.wrapper : window
+    eventOperation(window, 'orientationchange', this)
+    eventOperation(window, 'resize', this)
 
-	    if (!this.options.disableMouse) {
-	      eventOperation(this.wrapper, 'mousedown', this)
-	      eventOperation(target, 'mousemove', this)
-	      eventOperation(target, 'mousecancel', this)
-	      eventOperation(target, 'mouseup', this)
-	    }
+    if (this.options.click) {
+      eventOperation(this.wrapper, 'click', this, true)
+    }
 
-	    if (hasTouch && !this.options.disableTouch) {
-	      eventOperation(this.wrapper, 'touchstart', this)
-	      eventOperation(target, 'touchmove', this)
-	      eventOperation(target, 'touchcancel', this)
-	      eventOperation(target, 'touchend', this)
-	    }
+    if (!this.options.disableMouse) {
+      eventOperation(this.wrapper, 'mousedown', this)
+      eventOperation(target, 'mousemove', this)
+      eventOperation(target, 'mousecancel', this)
+      eventOperation(target, 'mouseup', this)
+    }
 
-	    eventOperation(this.scroller, style.transitionEnd, this)
-	  }
+    if (hasTouch && !this.options.disableTouch) {
+      eventOperation(this.wrapper, 'touchstart', this)
+      eventOperation(target, 'touchmove', this)
+      eventOperation(target, 'touchcancel', this)
+      eventOperation(target, 'touchend', this)
+    }
+
+    eventOperation(this.scroller, style.transitionEnd, this)
+  }
 ```
 
