@@ -1,4 +1,4 @@
-better-scroll [1.2.2] 源码分析
+better-scroll 1.2.2 源码分析
 ===========================
 ## 说明
 >  在源码中若有分析不对或者没说明清楚，请直接在 Issues 中提出，我会尽快修改！
@@ -85,3 +85,6 @@ BScroll.prototype.handleEvent = function (e) {
     }
   }
 ```
+
+`handleEvent` 方法中对移动端与PC端事件同时处理及 transitionend 兼容浏览器。下面来分析 `_start` `_move` `_end` ... 方法实现过程。
+
