@@ -7,9 +7,9 @@ better-scroll 1.2.2 源码分析
 
 >  如果对您有帮助，您可以点右上角 "Star" 支持我一下 谢谢！ ^_^
 
-## better-scroll 整体思路
+## BScroll 整体思路
 
-首先 better-scroll 是滚动插件，必然是触发`touchstart`、`touchmove`、`touchend`事件。在 init.js 文件中 `_handleDOMEvents` 函数注册了该事件。
+首先 BScroll 是滚动插件，必然是触发`touchstart`、`touchmove`、`touchend`事件。在 init.js 文件中 `_handleDOMEvents` 函数注册了该事件。
 
 ```javascript
 BScroll.prototype._addDOMEvents = function () {
@@ -63,5 +63,51 @@ BScroll.prototype.handleEvent = function (e) {
   }
 ```
 
-`handleEvent` 方法中对移动端与PC端事件同时处理及 transitionend 兼容浏览器。下面来分析 `_start` `_move` `_end` ... 方法实现过程。
+方法 `handleEvent` 中对移动端与PC端事件同时处理及 transitionend 兼容各个浏览器。
+
+在下面来分析 `_start` `_move` `_end`... 方法之前。BScroll 在 `_init` 初始化函数内会调用 `refresh` 方法来重新计算。
+
+```javascript
+BScroll.prototype.refresh = function () {
+    // 浏览器为了取得正确的值会触发重排
+    let rf = this.wrapper.offsetHeight
+
+    this.wrapperWidth = parseInt(this.wrapper.style.width) || this.wrapper.clientWidth
+    this.wrapperHeight = parseInt(this.wrapper.style.height) || this.wrapper.clientHeight
+
+    this.scrollerWidth = parseInt(this.scroller.style.width) || this.scroller.clientWidth
+    this.scrollerHeight = parseInt(this.scroller.style.height) || this.scroller.clientHeight
+
+    const wheel = this.options.wheel
+    if (wheel) {
+      // some code here...
+    } else {
+      // 计算出 X、Y 轴最大可以滚动的范围
+      this.maxScrollX = this.wrapperWidth - this.scrollerWidth
+      this.maxScrollY = this.wrapperHeight - this.scrollerHeight
+    }
+    // 当前是否在水平方向滚动
+    this.hasHorizontalScroll = this.options.scrollX && this.maxScrollX < 0
+    // 当前是否在垂直方向滚动
+    this.hasVerticalScroll = this.options.scrollY && this.maxScrollY < 0
+     	
+    // 不为水平方向时，将水平方向的值清除
+    if (!this.hasHorizontalScroll) {
+      this.maxScrollX = 0
+      this.scrollerWidth = this.wrapperWidth
+    }
+    // 不为垂直方向时，将垂直方向的值清除
+    if (!this.hasVerticalScroll) {
+      this.maxScrollY = 0
+      this.scrollerHeight = this.wrapperHeight
+    }
+    
+    // wrapper 元素到body之间的距离
+    this.wrapperOffset = offset(this.wrapper)
+    // 重新计算snap组件中pages参数
+    this.trigger('refresh')
+    // 如果超出滚动范围之外，则滚动回 0 或 maxScroll 位置
+    this.resetPosition()
+  }
+```
 
