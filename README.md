@@ -46,6 +46,42 @@ BScroll.prototype._handleDOMEvents = function (eventOperation) {
 ```
 what? this 竟然被填写在了绑定事件里。搜索了下发现这么个东西 [动态改变事件处理器](http://www.tuicool.com/articles/JZrUB3z)。
 
-- **handleEvent 与 addEventListener 关系：** 如果 addEvent 绑定的是一个对象(this)，那么该对象具有一个叫 `handleEvent` 方法。
-handleEvent 方法执行时，是在触发 `touchstart`、`touchmove`、`touchend` (等等) 时调用。
+- **handleEvent 与 addEventListener 关系：** 如果 addEvent 绑定的是一个对象(this)，那么该对象具有一个叫 `handleEvent` 属性的方法。
+在页面中触发 `touchstart`、`touchmove`、`touchend` (等其他事件) 时，会自动调用 handleEvent 方法。 
  
+```javascript
+BScroll.prototype.handleEvent = function (e) {
+    switch (e.type) {
+      case 'touchstart':
+      case 'mousedown':
+        this._start(e)
+        break
+      case 'touchmove':
+      case 'mousemove':
+        this._move(e)
+        break
+      case 'touchend':
+      case 'mouseup':
+      case 'touchcancel':
+      case 'mousecancel':
+        this._end(e)
+        break
+      case 'orientationchange':
+      case 'resize':
+        this._resize()
+        break
+      case 'transitionend':
+      case 'webkitTransitionEnd':
+      case 'oTransitionEnd':
+      case 'MSTransitionEnd':
+        this._transitionEnd(e)
+        break
+      case 'click':
+        if (this.enabled && !e._constructed) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+        break
+    }
+  }
+```
