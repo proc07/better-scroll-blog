@@ -13,9 +13,9 @@ better-scroll [1.2.2] 源码分析
 
 ```javascript
 BScroll.prototype._addDOMEvents = function () {
-	// addEvent 是 dom.js 中的 addEventListener 方法
-	let eventOperation = addEvent
-	this._handleDOMEvents(eventOperation)
+    // addEvent 是 dom.js 中的 addEventListener 方法
+    let eventOperation = addEvent
+    this._handleDOMEvents(eventOperation)
 }
 
 BScroll.prototype._handleDOMEvents = function (eventOperation) {
