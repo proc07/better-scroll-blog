@@ -9,9 +9,15 @@ better-scroll [1.2.2] 源码分析
 
 ## better-scroll 整体思路
 
-首先 better-scroll 是滚动插件，必然是触发`touchstart`、`touchmove`、`touchend`事件。在 inint.js 文件中 `_handleDOMEvents` 函数注册了该事件。
+首先 better-scroll 是滚动插件，必然是触发`touchstart`、`touchmove`、`touchend`事件。在 init.js 文件中 `_handleDOMEvents` 函数注册了该事件。
 
 ```javascript
+BScroll.prototype._addDOMEvents = function () {
+	// addEvent 是 dom.js 中的 addEventListener 方法
+	let eventOperation = addEvent
+	this._handleDOMEvents(eventOperation)
+}
+
 BScroll.prototype._handleDOMEvents = function (eventOperation) {
     let target = this.options.bindToWrapper ? this.wrapper : window
     eventOperation(window, 'orientationchange', this)
@@ -38,4 +44,4 @@ BScroll.prototype._handleDOMEvents = function (eventOperation) {
     eventOperation(this.scroller, style.transitionEnd, this)
   }
 ```
-
+what? this 竟然被填写在了绑定事件里。
