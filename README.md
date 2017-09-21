@@ -44,32 +44,21 @@ BScroll.prototype.handleEvent = function (e) {
       case 'mousedown':
         this._start(e)
         break
-      case 'touchmove':
-      case 'mousemove':
-        this._move(e)
-        break
+      // some code here...  
       case 'touchend':
       case 'mouseup':
       case 'touchcancel':
       case 'mousecancel':
         this._end(e)
         break
-      case 'orientationchange':
-      case 'resize':
-        this._resize()
-        break
+      // some code here...  
       case 'transitionend':
       case 'webkitTransitionEnd':
       case 'oTransitionEnd':
       case 'MSTransitionEnd':
         this._transitionEnd(e)
         break
-      case 'click':
-        if (this.enabled && !e._constructed) {
-          e.preventDefault()
-          e.stopPropagation()
-        }
-        break
+      // some code here...
     }
   }
 ```
