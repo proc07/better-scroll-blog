@@ -101,7 +101,7 @@ BScroll.prototype._start = function (e) {
 
 下面是 `_move` 方法中的片段代码。秋得嘛dei！在这里我们先了解下配置参数中的 `eventPassthrough` 用法，以便于下面更多解读。
 
-- ** options.eventPassthrough ** 在横向轮播图中，我们可以横向滚动，而纵向的滚动还是保留原生滚动，我们可以设置 eventPassthrough 为 vertical。
+- **options.eventPassthrough** 在横向轮播图中，我们可以横向滚动，而纵向的滚动还是保留原生滚动，我们可以设置 eventPassthrough 为 vertical。
 
 ```javascript
 // If you are scrolling in one direction lock the other
