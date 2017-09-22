@@ -85,22 +85,71 @@ BScroll.prototype.handleEvent = function (e) {
 
 ```javascript
 BScroll.prototype._start = function (e) {
-    // _eventType：有两种情况表示当前的环境：1 = TOUCH_EVENT，2 = MOUSE_EVENT。
+    // _eventType：有两种情况表示当前的环境：1 = TOUCH_EVENT，2 = MOUSE_EVENT。(可在dom.js中查看eventType变量)
     let _eventType = eventType[e.type]
     // some code here...
 
     /**
      * 在下面 _eventType 赋值给了 initiated，在这里 initiated 却不等于 _eventType 一定有某些不可告人的原因！
-     * 这个值在 `_move` 方法用到了，接下去看看。[横线](#横线)
+     * initiated 值在 `_move` 方法用到了，去看看。
      */
     if (!this.enabled || this.destroyed || (this.initiated && this.initiated !== _eventType)) {
       return
     }
     this.initiated = _eventType
+```
 
+下面是 `_move` 方法中的片段代码。秋得嘛dei！在这里我们先了解下配置参数中的 `eventPassthrough` 用法，以便于下面更多解读。
+
+- ** options.eventPassthrough ** 在横向轮播图中，我们可以横向滚动，而纵向的滚动还是保留原生滚动，我们可以设置 eventPassthrough 为 vertical。
+
+```javascript
+// If you are scrolling in one direction lock the other
+if (!this.directionLocked && !this.options.freeScroll) {
+  /** 
+   *  absDistX：横向移动的距离
+   *  absDistY：纵向移动的距离
+   *  触摸开始位置移动到当前位置：横向距离 > 纵向距离，说明当前是在往水平方向(h)移动，反之垂直方向(v)移动。
+   */
+  if (absDistX > absDistY + this.options.directionLockThreshold) {
+    this.directionLocked = 'h'    // lock horizontally
+  } else if (absDistY >= absDistX + this.options.directionLockThreshold) {
+    this.directionLocked = 'v'    // lock vertically
+  } else {
+    this.directionLocked = 'n'    // no lock
+  }
+}
+
+if (this.directionLocked === 'h') {
+  if (this.options.eventPassthrough === 'vertical') {
+    // h方向滚动并设置了eventPassthrough的话，关闭掉默认事件
+    e.preventDefault()
+  } else if (this.options.eventPassthrough === 'horizontal') {
+    // 为纵向滚动轮播图上h方向滚动，退出move函数，并页面原生滚动
+    this.initiated = false
+    return
+  }
+  // 水平方向滚动，则垂直方向的数值清0，以免计算滚动Y轴
+  deltaY = 0
+} else if (this.directionLocked === 'v') {
+  if (this.options.eventPassthrough === 'horizontal') {
+    e.preventDefault()
+  } else if (this.options.eventPassthrough === 'vertical') {
+    // 为横向滚动轮播图上v方向滚动，退出move函数，并页面原生滚动
+    this.initiated = false
+    return
+  }
+  deltaX = 0
+}
+```
+
+```javascript
     if (this.options.preventDefault && !preventDefaultException(e.target, this.options.preventDefaultException)) {
       e.preventDefault()
     }
+```
+
+```javascript
     // moved 为true时，表示正在移动中
     this.moved = false
     // 记录触摸开始位置到手指抬起结束位置的距离
@@ -135,5 +184,3 @@ BScroll.prototype._start = function (e) {
     this.trigger('beforeScrollStart')
   }
 ```
-
-- **** 
