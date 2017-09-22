@@ -7,6 +7,22 @@ better-scroll 1.2.2 源码分析
 
 >  如果对您有帮助，您可以点右上角 "Star" 支持我一下 谢谢！ ^_^
 
+## 目录
+```
+|
+|——src
+| |—— scroll : 核心代码
+| |
+| |—— util 工具库
+| |    |____ dom : 对DOM操作的库，例如获取兼容浏览器的css前缀，获取元素相对位置，节点插入等
+| |    |____ ease : 动画的运行阻尼系数
+| |    |____ eventEmitter : 订阅发布
+| |    |____ index : 导出当前util的所有库
+| |    |____ lang : 封装H5优化动画的库
+| |    |____ momentum : 回弹动画的库
+| |
+```
+
 ## BScroll 整体思路
 
 首先 BScroll 是滚动插件，必然是触发`touchstart`、`touchmove`、`touchend`事件。在 init.js 文件中 `_handleDOMEvents` 函数注册了该事件。
@@ -65,12 +81,19 @@ BScroll.prototype.handleEvent = function (e) {
 
 方法 `handleEvent` 中对移动端与PC端事件同时处理调用内置的 `_start` `_move` `_end`... 方法，下面来对分析。
 
-#### _start 函数
+#### _start 方法
 
 ```javascript
+BScroll.prototype._start = function (e) {
+    // _eventType：有两种情况表示当前的环境：1 = TOUCH_EVENT，2 = MOUSE_EVENT。
     let _eventType = eventType[e.type]
     // some code here...
 
+    /**
+     * 在下面 _eventType 赋值给了 initiated，在这里 initiated 却不等于 _eventType 一定有某些不可告人的原因。这个值在 `_move` 方法用到了，接下去看看。
+     * 
+     * 
+     */
     if (!this.enabled || this.destroyed || (this.initiated && this.initiated !== _eventType)) {
       return
     }
@@ -111,5 +134,7 @@ BScroll.prototype.handleEvent = function (e) {
     this.pointY = point.pageY
 
     this.trigger('beforeScrollStart')
+  }
 ```
-- **_eventType：** 有2种情况：1 = 移动端 2 = PC端。
+
+- **** 
