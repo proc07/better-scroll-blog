@@ -91,17 +91,21 @@ BScroll.prototype._start = function (e) {
 
     /**
      * 在下面 _eventType 赋值给了 initiated，在这里 initiated 却不等于 _eventType 一定有某些不可告人的原因！
-     * initiated 值在 `_move` 方法用到了，去看看。
+     * 我觉得是：当前从PC中切换到移动端去，才会触发。原因：(在init.js中refresh方法) 在初始化的时候会配置一些参数作为滚动时候限制，
+     * 如果切换了页面，那么这些参数将与现在的大小不一致。
      */
     if (!this.enabled || this.destroyed || (this.initiated && this.initiated !== _eventType)) {
       return
     }
+    // 下面我们来了解下 initiated 作用，它在 `_move` 方法用到了，去看看。
     this.initiated = _eventType
 ```
 
-下面是 `_move` 方法中的片段代码。秋得嘛dei！在这里我们先了解下配置参数中的 `eventPassthrough` 用法，以便于下面更多解读。
+秋得嘛dei！在这里我们先了解下配置参数中的 `eventPassthrough` 用法，以便于下面更好解读。
 
-- **options.eventPassthrough** 在横向轮播图中，我们可以横向滚动，而纵向的滚动还是保留原生滚动，我们可以设置 eventPassthrough 为 vertical。
+- **options.eventPassthrough：** 在横向轮播图中，我们可以横向滚动，而纵向的滚动还是保留页面原生滚动，我们可以设置 eventPassthrough 为 vertical。
+
+下面是 `_move` 方法中的片段代码。
 
 ```javascript
 // If you are scrolling in one direction lock the other
@@ -122,26 +126,22 @@ if (!this.directionLocked && !this.options.freeScroll) {
 
 if (this.directionLocked === 'h') {
   if (this.options.eventPassthrough === 'vertical') {
-    // h方向滚动并设置了eventPassthrough的话，关闭掉默认事件
+    // 设置为 vertical 的话说明希望保留纵向原生滚动，那么当前为横向轮播图，h方向滚动，则需要关闭默认事件防止触发其他操作。
     e.preventDefault()
   } else if (this.options.eventPassthrough === 'horizontal') {
-    // 为纵向滚动轮播图上h方向滚动，退出move函数，并页面原生滚动
+    // 设置为 horizontal 的话说明希望保留横向原生滚动，那么当前为纵向轮播图，h方向滚动，则退出_move函数，会触发页面原生滚动。
+    // 这里 initiated 设置成 false，下次进行触摸时，_start 方法可以进入执行。
     this.initiated = false
     return
   }
-  // 水平方向滚动，则垂直方向的数值清0，以免计算滚动Y轴
+  // 横向滚动时，则纵向的数值清零，只能允许一个方向滚动。
   deltaY = 0
 } else if (this.directionLocked === 'v') {
-  if (this.options.eventPassthrough === 'horizontal') {
-    e.preventDefault()
-  } else if (this.options.eventPassthrough === 'vertical') {
-    // 为横向滚动轮播图上v方向滚动，退出move函数，并页面原生滚动
-    this.initiated = false
-    return
-  }
-  deltaX = 0
+  // some code here...
 }
 ```
+
+总结下：
 
 ```javascript
     if (this.options.preventDefault && !preventDefaultException(e.target, this.options.preventDefaultException)) {
