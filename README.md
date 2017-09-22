@@ -90,9 +90,8 @@ BScroll.prototype._start = function (e) {
     // some code here...
 
     /**
-     * 在下面 _eventType 赋值给了 initiated，在这里 initiated 却不等于 _eventType 一定有某些不可告人的原因。这个值在 `_move` 方法用到了，接下去看看。
-     * 
-     * 
+     * 在下面 _eventType 赋值给了 initiated，在这里 initiated 却不等于 _eventType 一定有某些不可告人的原因！
+     * 这个值在 `_move` 方法用到了，接下去看看。[横线](#横线)
      */
     if (!this.enabled || this.destroyed || (this.initiated && this.initiated !== _eventType)) {
       return
