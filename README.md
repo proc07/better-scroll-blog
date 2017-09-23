@@ -141,10 +141,12 @@ if (this.directionLocked === 'h') {
 }
 ```
 
-总结下 initiated ：实际上在 `_move` `_end` 方法中 `this.initiated = false` 这段代码可以不写的，
+总结下 initiated ：实际上在 `_move` `_end` 方法中 `this.initiated = false` 这段代码可以不写的。
+
 因为有这句判断 `(this.initiated && this.initiated !== _eventType)`
 （比如第一次进入 initiated 设置成了 1，下一次进入判断 initiated 是存在并且 `initiated !== _
 eventType` (1 !== 1) 这句话是不成立的，可以继续进入）
+
 那为什么要设置呢？我觉得 `initiated` 变量在这里定义是：表明当前正在滚动中并且属于移动端还是PC端。
 
 ```javascript
