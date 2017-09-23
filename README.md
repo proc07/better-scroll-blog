@@ -91,13 +91,13 @@ BScroll.prototype._start = function (e) {
 
     /**
      * 在下面 _eventType 赋值给了 initiated，在这里 initiated 却不等于 _eventType 一定有某些不可告人的原因！
-     * 我觉得是：当前从PC中切换到移动端去，才会触发。原因：(在init.js中refresh方法) 在初始化的时候会配置一些参数作为滚动时候限制，
-     * 如果切换了页面，那么这些参数将与现在的大小不一致。
+     * 我觉得可能是解决某个中的bug吧，一般来说当前在 TOUCH_EVENT (移动端)中不会变成 MOUSE_EVENT (PC端)。
+     * ^_^ 如果你知道的话，请 Issues 中提出！
      */
     if (!this.enabled || this.destroyed || (this.initiated && this.initiated !== _eventType)) {
       return
     }
-    // 下面我们来了解下 initiated 作用，它在 `_move` 方法用到了，去看看。
+    // initiated 会在触发 _end 方法是设置成 false 以便于下次 _start 重新进入，它也在 `_move` 方法用到了，去看看。
     this.initiated = _eventType
 ```
 
@@ -141,7 +141,8 @@ if (this.directionLocked === 'h') {
 }
 ```
 
-总结下：
+总结下 initiated ：实际上在 `_move` `_end` 方法中 `this.initiated = false` 这段代码可以不写的，因为有这句判断 `(this.initiated && this.initiated !== _eventType)`（比如第一次进入 initiated 设置成了 1，下一次进入判断 initiated 是存在并且 initiated !== _
+eventType (1 !== 1) 这句话是不成立的，可以继续进入）那为什么要设置呢？我觉得 `initiated` 变量在这里定义是：表明当前正在滚动中并且属于移动端还是PC端。
 
 ```javascript
     if (this.options.preventDefault && !preventDefaultException(e.target, this.options.preventDefaultException)) {
