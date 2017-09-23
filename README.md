@@ -149,44 +149,50 @@ eventType` (1 !== 1) 这句话是不成立的，可以继续进入）
 
 那为什么要设置呢？我觉得 `initiated` 变量在这里定义是：表明当前正在滚动中并且属于移动端还是PC端。
 
+我们继续往下看...
+
 ```javascript
-    if (this.options.preventDefault && !preventDefaultException(e.target, this.options.preventDefaultException)) {
-      e.preventDefault()
-    }
+  if (this.options.preventDefault && !preventDefaultException(e.target, this.options.preventDefaultException)) {
+    e.preventDefault()
+  }
 ```
 
+- **options.preventDefault：** 
+
+- **preventDefaultException：**
+
 ```javascript
-    // moved 为true时，表示正在移动中
-    this.moved = false
-    // 记录触摸开始位置到手指抬起结束位置的距离
-    this.distX = 0
-    this.distY = 0
-    // _end函数判断移动的方向 -1(左边方向) 0(默认) 1(右边方向)
-    this.directionX = 0
-    this.directionY = 0
-    // 滚动的方向位置(h=水平、v=垂直)
-    this.directionLocked = 0
+  // moved 为true时，表示正在移动中
+  this.moved = false
+  // 记录触摸开始位置到手指抬起结束位置的距离
+  this.distX = 0
+  this.distY = 0
+  // _end函数判断移动的方向 -1(左边方向) 0(默认) 1(右边方向)
+  this.directionX = 0
+  this.directionY = 0
+  // 滚动的方向位置(h=水平、v=垂直)
+  this.directionLocked = 0
 
-    this._transitionTime()
-    this.startTime = getNow()
+  this._transitionTime()
+  this.startTime = getNow()
 
-    if (this.options.wheel) {
-      this.target = e.target
-    }
-    // 若上一次滚动还在继续时，此时触发了_start，则停止跳当前滚动
-    this.stop()
-
-    let point = e.touches ? e.touches[0] : e
-
-    this.startX = this.x
-    this.startY = this.y
-    // 在_end函数中给this.directionX|Y辨别方向
-    this.absStartX = this.x
-    this.absStartY = this.y
-    // 记录当前的位置并移动时更新
-    this.pointX = point.pageX
-    this.pointY = point.pageY
-
-    this.trigger('beforeScrollStart')
+  if (this.options.wheel) {
+    this.target = e.target
   }
+  // 若上一次滚动还在继续时，此时触发了_start，则停止跳当前滚动
+  this.stop()
+
+  let point = e.touches ? e.touches[0] : e
+
+  this.startX = this.x
+  this.startY = this.y
+  // 在_end函数中给this.directionX|Y辨别方向
+  this.absStartX = this.x
+  this.absStartY = this.y
+  // 记录当前的位置并移动时更新
+  this.pointX = point.pageX
+  this.pointY = point.pageY
+
+  this.trigger('beforeScrollStart')
+}
 ```
