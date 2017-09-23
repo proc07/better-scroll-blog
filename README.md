@@ -157,9 +157,12 @@ eventType` (1 !== 1) 这句话是不成立的，可以继续进入）
   }
 ```
 
-- **options.preventDefault：** 
+- **options.preventDefault：**  eventPassthrough 的设置会导致 preventDefault 无效，这里要注意
 
-- **preventDefaultException：**
+- **preventDefaultException：** better-scroll 的实现会阻止原生的滚动，这样也同时阻止了一些原生组件的默认行为。
+这个时候我们不能对这些元素做 preventDefault，所以我们可以配置 preventDefaultException。
+默认值 {tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/}表示标签名为 input、textarea、button、select 这些元素的默认行为都不会被阻止。
+
 
 ```javascript
   // moved 为true时，表示正在移动中
