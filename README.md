@@ -163,8 +163,10 @@ eventType` (1 !== 1) 这句话是不成立的，可以继续进入）
 这个时候我们不能对这些元素做 preventDefault，所以我们可以配置 preventDefaultException。
 默认值 {tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/}表示标签名为 input、textarea、button、select 这些元素的默认行为都不会被阻止。
 
+以下是 `_start` 方法中定义的一些变量，用于 `_move` `_end` 方法进行操作判断等。
+
 ```javascript
-  // moved 为true时，表示触发了 _move方法
+  // moved 作用是为了在 `_move` 方法触发 scrollStart 函数。
   this.moved = false
   // 记录触摸开始位置到结束位置的距离
   this.distX = 0
@@ -176,7 +178,7 @@ eventType` (1 !== 1) 这句话是不成立的，可以继续进入）
   this.directionLocked = 0
   // 设置 transition 运动时间，不传参数设置为0 (core.js可查看)
   this._transitionTime()
-  // 当前时间戳
+  // 时间戳
   this.startTime = getNow()
 
   // ...
@@ -202,34 +204,46 @@ eventType` (1 !== 1) 这句话是不成立的，可以继续进入）
 
 `_start` 方法到这里就结束了，下面开始来分析 `_move` 方法。
 
+#### _move 方法
+
 ```javascript
 BScroll.prototype._move = function (e) {
     // some code here...
 
-    // 触摸一段 move 的距离
+    // deltaX 触发一次 touchmove 的距离
     let deltaX = point.pageX - this.pointX
     let deltaY = point.pageY - this.pointY
-    // 更新
+
+    // 更新手指移动的位置
     this.pointX = point.pageX
     this.pointY = point.pageY
 
+    // 累加上这移动一段的距离
     this.distX += deltaX
     this.distY += deltaY
-    // absDistX|Y 用来判断是往哪个方向滚动的
+
     let absDistX = Math.abs(this.distX)
     let absDistY = Math.abs(this.distY)
     let timestamp = getNow()
 
-    // 注：我们需要移动至少15个像素来启动滚动，并且时间大于300ms跳出，在 _end 函数触发 click 事件。
+    /**
+     * endTime：开始为零，在 _end 方法中设置(时间戳)。
+     * momentumLimitTime: 300。
+     * momentumLimitDistance = 15。
+     * 第一个条件：每次滚动的时间大于300ms说明比较缓慢的滚动，如果小于300ms则是快速的滚动(可能小于15px)，这种情况则继续执行
+     * 第二个条件：需要移动至少15个像素来启动滚动
+     */
     if (timestamp - this.endTime > this.options.momentumLimitTime && (absDistY < this.options.momentumLimitDistance && absDistX < this.options.momentumLimitDistance)) {
       return
     }
-    
+
     // some code here...
 
+    // 如果没有开启 freeScroll，只允许一个方向滚动，另一个方向则要清零。
     deltaX = this.hasHorizontalScroll ? deltaX : 0
     deltaY = this.hasVerticalScroll ? deltaY : 0
 
+    // 最后滚动到的位置
     let newX = this.x + deltaX
     let newY = this.y + deltaY
 
@@ -245,14 +259,42 @@ BScroll.prototype._move = function (e) {
     // some code here...
 
     if (!this.moved) {
+      // moved 作用是为了触发 scrollStart 函数。
       this.moved = true
       this.trigger('scrollStart')
     }
 
     this._translate(newX, newY)
+```
 
+- ** _translate： ** 该方法执行元素滚动到指定（x, y）坐标位置上，使用两种方法实现。
+
+
+```javascript
+BScroll.prototype._translate = function (x, y) {
+    // 支持 transition 的话使用 translate，否则兼容使用定位的 left、top值来滚动。
+    if (this.options.useTransform) {
+      this.scrollerStyle[style.transform] = `translate(${x}px,${y}px)${this.translateZ}`
+    } else {
+      x = Math.round(x)
+      y = Math.round(y)
+      this.scrollerStyle.left = `${x}px`
+      this.scrollerStyle.top = `${y}px`
+    }
+
+    // ...
+
+    // 滚动时实时更新当前坐标
+    this.x = x
+    this.y = y
+
+    // ...
+  }
+```
+
+```javascript
     if (timestamp - this.startTime > this.options.momentumLimitTime) {
-      // 大于300ms是不会触发flick\momentum，赋值是为了重新计算，在_end函数中能够触发快速滑动、开启动量滚动
+      // 大于300ms是不会触发flick\momentum，赋值是为了重新计算，在_end函数中能够触发flick\momentum
       this.startTime = timestamp
       this.startX = this.x
       this.startY = this.y
