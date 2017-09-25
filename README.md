@@ -157,45 +157,135 @@ eventType` (1 !== 1) 这句话是不成立的，可以继续进入）
   }
 ```
 
-- **options.preventDefault：**  eventPassthrough 的设置会导致 preventDefault 无效，这里要注意
+- **options.preventDefault：**  eventPassthrough 的设置会导致 preventDefault 无效，这里要注意。(就在我分析的版本案例中作者在snap轮播图就设置了eventPassthrough导致了PC端中拖拽时把图片默认事件一起拖拽了的问题，不过在后续版本已解决。)
 
 - **preventDefaultException：** better-scroll 的实现会阻止原生的滚动，这样也同时阻止了一些原生组件的默认行为。
 这个时候我们不能对这些元素做 preventDefault，所以我们可以配置 preventDefaultException。
 默认值 {tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/}表示标签名为 input、textarea、button、select 这些元素的默认行为都不会被阻止。
 
-
 ```javascript
-  // moved 为true时，表示正在移动中
+  // moved 为true时，表示触发了 _move方法
   this.moved = false
-  // 记录触摸开始位置到手指抬起结束位置的距离
+  // 记录触摸开始位置到结束位置的距离
   this.distX = 0
   this.distY = 0
-  // _end函数判断移动的方向 -1(左边方向) 0(默认) 1(右边方向)
+  // _end 函数判断移动的方向 -1(左或上方向) 0(默认) 1(右或下方向)
   this.directionX = 0
   this.directionY = 0
-  // 滚动的方向位置(h=水平、v=垂直)
+  // 在滚动的方向位置(h=水平、v=垂直)
   this.directionLocked = 0
-
+  // 设置 transition 运动时间，不传参数设置为0 (core.js可查看)
   this._transitionTime()
+  // 当前时间戳
   this.startTime = getNow()
 
-  if (this.options.wheel) {
-    this.target = e.target
-  }
-  // 若上一次滚动还在继续时，此时触发了_start，则停止跳当前滚动
+  // ...
+
+  // 若上一次滚动还在继续时，此时触发了_start，则停止跳当前滚动位置
   this.stop()
 
   let point = e.touches ? e.touches[0] : e
 
+  // 在 _end 方法中用于计算快速滑动 flick
   this.startX = this.x
   this.startY = this.y
-  // 在_end函数中给this.directionX|Y辨别方向
+  // 在 _end 方法中给this.directionX|Y辨别方向
   this.absStartX = this.x
   this.absStartY = this.y
   // 记录当前的位置并移动时更新
   this.pointX = point.pageX
   this.pointY = point.pageY
-
+  // better-scroll 还提供了一些事件，方便和外部做交互。如外部使用 on('beforeScrollStart') 方法来监听操作。
   this.trigger('beforeScrollStart')
 }
+```
+
+`_start` 方法到这里就结束了，下面开始来分析 `_move` 方法。
+
+```javascript
+BScroll.prototype._move = function (e) {
+    // some code here...
+
+    // 触摸一段 move 的距离
+    let deltaX = point.pageX - this.pointX
+    let deltaY = point.pageY - this.pointY
+    // 更新
+    this.pointX = point.pageX
+    this.pointY = point.pageY
+
+    this.distX += deltaX
+    this.distY += deltaY
+    // absDistX|Y 用来判断是往哪个方向滚动的
+    let absDistX = Math.abs(this.distX)
+    let absDistY = Math.abs(this.distY)
+    let timestamp = getNow()
+
+    // 注：我们需要移动至少15个像素来启动滚动，并且时间大于300ms跳出，在 _end 函数触发 click 事件。
+    if (timestamp - this.endTime > this.options.momentumLimitTime && (absDistY < this.options.momentumLimitDistance && absDistX < this.options.momentumLimitDistance)) {
+      return
+    }
+    
+    // some code here...
+
+    deltaX = this.hasHorizontalScroll ? deltaX : 0
+    deltaY = this.hasVerticalScroll ? deltaY : 0
+
+    let newX = this.x + deltaX
+    let newY = this.y + deltaY
+
+    // 在边界之外慢下来或停止
+    if (newX > 0 || newX < this.maxScrollX) {
+      // bounce：是否开启回弹效果
+      if (this.options.bounce) {
+        newX = this.x + deltaX / 3
+      } else {
+        newX = newX > 0 ? 0 : this.maxScrollX
+      }
+    }
+    // some code here...
+
+    if (!this.moved) {
+      this.moved = true
+      this.trigger('scrollStart')
+    }
+
+    this._translate(newX, newY)
+
+    if (timestamp - this.startTime > this.options.momentumLimitTime) {
+      // 大于300ms是不会触发flick\momentum，赋值是为了重新计算，在_end函数中能够触发快速滑动、开启动量滚动
+      this.startTime = timestamp
+      this.startX = this.x
+      this.startY = this.y
+
+      if (this.options.probeType === 1) {
+        this.trigger('scroll', {
+          x: this.x,
+          y: this.y
+        })
+      }
+    }
+    // 实时的派发 scroll 事件
+    if (this.options.probeType > 1) {
+      this.trigger('scroll', {
+        x: this.x,
+        y: this.y
+      })
+    }
+    /**
+     * document.documentElement.scrollLeft  获取页面文档向右滚动过的像素数 (FireFox和IE中)
+     * document.body.scrollTop 获取页面文档向下滚动过的像素数  (Chrome、Opera、Safari中)
+     * window.pageXOffset (所有主流浏览器都支持，IE 8 及 更早 IE 版本不支持该属性)
+     */
+    let scrollLeft = document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft
+    let scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
+    // pointX 触摸点相对于页面的位置(包括页面原始滚动距离scrollLeft)
+    let pX = this.pointX - scrollLeft
+    let pY = this.pointY - scrollTop
+
+    // 距离页面(上下左右边上)15px以内直接触发_end事件
+    if (pX > document.documentElement.clientWidth - this.options.momentumLimitDistance || pX < this.options.momentumLimitDistance || pY < this.options.momentumLimitDistance || pY > document.documentElement.clientHeight - this.options.momentumLimitDistance
+    ) {
+      this._end(e)
+    }
+  }
 ```
