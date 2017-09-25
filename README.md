@@ -361,3 +361,108 @@ BScroll.prototype._translate = function (x, y) {
 ```
 
 #### _end 方法
+
+```javascript
+BScroll.prototype._end = function (e) {
+    // code...
+    this.initiated = false
+
+    // some code here...
+
+    // reset if we are outside of the boundaries
+    if (this.resetPosition(this.options.bounceTime, ease.bounce)) {
+      return
+    }
+
+    this.isInTransition = false
+
+    // ensures that the last position is rounded
+    let newX = Math.round(this.x)
+    let newY = Math.round(this.y)
+
+    // we scrolled less than 15 pixels  触发点击事件
+    if (!this.moved) {
+      if (this.options.wheel) {
+        // 触发说明点击的位置是中间的缝隙(wheel-item元素上下之间存在一些缝隙)
+        if (this.target && this.target.className === 'wheel-scroll') {
+          let index = Math.abs(Math.round(newY / this.itemHeight))
+          /**
+           * pointY：手指离开屏幕位置距离body的长度
+           * offset([wheel-scroll]).top：wheel-scroll元素距离body的(定位)长度(且加上自带的margin-top: 68px)
+           * _offset：以上两个相加得出：中间选项位置距离你点击位置之间的长度及为偏移量
+           */
+          let _offset = Math.round((this.pointY + offset(this.target).top - this.itemHeight / 2) / this.itemHeight)
+          this.target = this.items[index + _offset]
+        }
+        this.scrollToElement(this.target, this.options.wheel.adjustTime || 400, true, true, ease.swipe)
+      } else {
+        if (this.options.tap) {
+          tap(e, this.options.tap)
+        }
+
+        if (this.options.click) {
+          click(e)
+        }
+      }
+      this.trigger('scrollCancel')
+      return
+    }
+
+    this.scrollTo(newX, newY)
+
+    // 正或负数(下面辨别移动方向) =  结束位置 - 开始位置
+    let deltaX = newX - this.absStartX
+    let deltaY = newY - this.absStartY
+
+    this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0
+    this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0
+
+    this.endTime = getNow()
+    
+    // some code here...
+
+    let time = 0
+    // start momentum animation if needed
+    if (this.options.momentum && duration < this.options.momentumLimitTime && (absDistY > this.options.momentumLimitDistance || absDistX > this.options.momentumLimitDistance)) {
+      let momentumX = this.hasHorizontalScroll ? momentum(this.x, this.startX, duration, this.maxScrollX, this.options.bounce ? this.wrapperWidth : 0, this.options)
+        : {destination: newX, duration: 0}
+      let momentumY = this.hasVerticalScroll ? momentum(this.y, this.startY, duration, this.maxScrollY, this.options.bounce ? this.wrapperHeight : 0, this.options)
+        : {destination: newY, duration: 0}
+      newX = momentumX.destination
+      newY = momentumY.destination
+      time = Math.max(momentumX.duration, momentumY.duration)
+      this.isInTransition = 1
+    } else {
+      // some code here...
+    }
+
+    let easing = ease.swipe
+    if (this.options.snap) {
+      let snap = this._nearestSnap(newX, newY)
+      this.currentPage = snap
+      // time 以滚动的距离与300ms比较取值
+      time = this.options.snapSpeed || Math.max(
+          Math.max(
+            Math.min(Math.abs(newX - snap.x), 1000),
+            Math.min(Math.abs(newY - snap.y), 1000)
+          ), 300)
+      newX = snap.x
+      newY = snap.y
+
+      this.directionX = 0
+      this.directionY = 0
+      easing = ease.bounce
+    }
+    // 进入执行滚动到最后的位置(启动了动量)
+    if (newX !== this.x || newY !== this.y) {
+      // change easing function when scroller goes out of the boundaries
+      if (newX > 0 || newX < this.maxScrollX || newY > 0 || newY < this.maxScrollY) {
+        easing = ease.swipeBounce
+      }
+      this.scrollTo(newX, newY, time, easing)
+      return
+    }
+
+    // some code here...
+  }
+```
