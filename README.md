@@ -267,12 +267,10 @@ BScroll.prototype._move = function (e) {
     this._translate(newX, newY)
 ```
 
-- ** _translate： ** 该方法执行元素滚动到指定（x, y）坐标位置上，使用两种方法实现。
-
+`_translate：` 该方法执行元素滚动到指定（x, y）坐标位置上，有两种方法实现。
 
 ```javascript
 BScroll.prototype._translate = function (x, y) {
-    // 支持 transition 的话使用 translate，否则兼容使用定位的 left、top值来滚动。
     if (this.options.useTransform) {
       this.scrollerStyle[style.transform] = `translate(${x}px,${y}px)${this.translateZ}`
     } else {
@@ -292,20 +290,49 @@ BScroll.prototype._translate = function (x, y) {
   }
 ```
 
+支持 `transition` CSS3属性的话使用 translate (及translateZ GPU硬件加速) 来滚动，否则兼容使用定位的 left、top值来滚动。
+
+我们继续看...
+
 ```javascript
     if (timestamp - this.startTime > this.options.momentumLimitTime) {
-      // 大于300ms是不会触发flick\momentum，赋值是为了重新计算，在_end函数中能够触发flick\momentum
       this.startTime = timestamp
       this.startX = this.x
       this.startY = this.y
 
-      if (this.options.probeType === 1) {
-        this.trigger('scroll', {
-          x: this.x,
-          y: this.y
-        })
-      }
+      // ...
     }
+```
+
+为什么 `timestamp - this.startTime` (即触发 start 到 move 时用的时间) 大于 300ms，会重新赋值这3个参数？
+
+分析：首先我们要知道快速滑动（flick）必须要在很短时间内才算是触发（BScroll中设置为300ms）。
+
+如果这段距离时间大于300ms，在 `_end` 方法中是不会触发flick及momentum。下面代码来自 `_end` 方法。
+
+```javascript
+  let duration = this.endTime - this.startTime
+  let absDistX = Math.abs(newX - this.startX)
+  let absDistY = Math.abs(newY - this.startY)
+
+  // _events.flick 什么时候是存在的？
+  // 当调用了 snap.js 组件时才存在。（在snap.js的_initSnap方法中添加了一个 this.on('flick', fn) 的函数）
+  if (this._events.flick && duration < this.options.flickLimitTime && absDistX < this.options.flickLimitDistance && absDistY < this.options.flickLimitDistance) {
+    this.trigger('flick')
+    return
+  }
+
+  // start momentum animation if needed
+  if (this.options.momentum && duration < this.options.momentumLimitTime && (absDistY > this.options.momentumLimitDistance || absDistX > this.options.momentumLimitDistance)) {
+    // some code here...
+  } else {
+    // code...
+  }
+```
+
+所以：在 `_move` 方法中滑动的时间大于300ms，需要重新赋值计算，以便于在 `_end` 方法中可以触发flick及momentum。
+
+```javascript
     // 实时的派发 scroll 事件
     if (this.options.probeType > 1) {
       this.trigger('scroll', {
@@ -313,6 +340,7 @@ BScroll.prototype._translate = function (x, y) {
         y: this.y
       })
     }
+
     /**
      * document.documentElement.scrollLeft  获取页面文档向右滚动过的像素数 (FireFox和IE中)
      * document.body.scrollTop 获取页面文档向下滚动过的像素数  (Chrome、Opera、Safari中)
@@ -331,3 +359,5 @@ BScroll.prototype._translate = function (x, y) {
     }
   }
 ```
+
+#### _end 方法
