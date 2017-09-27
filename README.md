@@ -10,16 +10,23 @@ better-scroll 1.2.2 源码分析
 ## 目录
 ```
 |
-|——src
+|——src 
 | |—— scroll : 核心代码
-| |
+| |    |____ core : 
+| |    |____ event : 
+| |    |____ init : 
+| |    |____ pulldown : 
+| |    |____ pullup : 
+| |    |____ scrollbar : 
+| |    |____ snap : 
+| |    |____ wheel : 
 | |—— util 工具库
-| |    |____ dom : 对DOM操作的库，例如获取兼容浏览器的css前缀，获取元素相对位置，节点插入等
-| |    |____ ease : 动画的运行阻尼系数
-| |    |____ eventEmitter : 订阅发布
-| |    |____ index : 导出当前util的所有库
-| |    |____ lang : 封装H5优化动画的库
-| |    |____ momentum : 回弹动画的库
+| |    |____ debug : 
+| |    |____ dom : 
+| |    |____ ease : 
+| |    |____ lang : 
+| |    |____ momentum : 
+| |    |____ raf : 
 | |
 ```
 
