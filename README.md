@@ -368,22 +368,54 @@ BScroll.prototype._end = function (e) {
     this.initiated = false
 
     // some code here...
-
-    // reset if we are outside of the boundaries
+    
     if (this.resetPosition(this.options.bounceTime, ease.bounce)) {
       return
     }
+```
 
+// resetPosition 介绍，可在 `core.js` 中查看。
+
+```javascript
+BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
+    let x = this.x
+    if (!this.hasHorizontalScroll || x > 0) {  // 在纵向滚动时则 x 固定为0 || x > 0 说明横向滚动(左边方向)超出了滚动的范围
+      x = 0
+    } else if (x < this.maxScrollX) { // maxScrollX 是为负数，当 x 小于 maxScrollX 时说明横向滚动(右边方向)超出了滚动的范围
+      x = this.maxScrollX
+    }
+
+    let y = this.y
+    if (!this.hasVerticalScroll || y > 0) { // 在横向滚动时 y 值固定为0 || y > 0 说明纵向(上边顶部)往下拖拽超出了滚动范围
+      y = 0
+    } else if (y < this.maxScrollY) {  // 同理..
+      y = this.maxScrollY
+    }
+
+    // 如果位置没有发生变化，则不需要滚动直接退出。
+    if (x === this.x && y === this.y) {
+      return false
+    }
+    // 滚动到(x,y)值位置
+    this.scrollTo(x, y, time, easeing)
+
+    return true
+  }
+```
+
+- **resetPosition：** 返回值两种情况：`true` `false`。作用：如果超出滚动范围之外，则滚动回 0 或 maxScroll 位置
+
+```javascript
     this.isInTransition = false
 
     // ensures that the last position is rounded
     let newX = Math.round(this.x)
     let newY = Math.round(this.y)
 
-    // we scrolled less than 15 pixels  触发点击事件
+    // we scrolled less than 15 pixels  
     if (!this.moved) {
       if (this.options.wheel) {
-        // 触发说明点击的位置是中间的缝隙(wheel-item元素上下之间存在一些缝隙)
+        // className = 'wheel-scroll' 说明点击的位置是中间的缝隙 注：wheel-item元素上下之间存在一些缝隙
         if (this.target && this.target.className === 'wheel-scroll') {
           let index = Math.abs(Math.round(newY / this.itemHeight))
           /**
@@ -396,6 +428,7 @@ BScroll.prototype._end = function (e) {
         }
         this.scrollToElement(this.target, this.options.wheel.adjustTime || 400, true, true, ease.swipe)
       } else {
+        // 触发 click tap 事件
         if (this.options.tap) {
           tap(e, this.options.tap)
         }
@@ -410,7 +443,7 @@ BScroll.prototype._end = function (e) {
 
     this.scrollTo(newX, newY)
 
-    // 正或负数(下面辨别移动方向) =  结束位置 - 开始位置
+    // 为正或负数(下面辨别移动方向) = (结束位置 - 开始位置)
     let deltaX = newX - this.absStartX
     let deltaY = newY - this.absStartY
 
