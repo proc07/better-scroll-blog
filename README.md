@@ -438,7 +438,7 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
     this.scrollTo(newX, newY)
 ```
 
-![wheel-scroll图片说明](http://wx4.sinaimg.cn/large/0063LHPIly1fjyek9hydqj30920fuq3k.jpg "wheel")
+![wheel-scroll图片说明](http://wx4.sinaimg.cn/large/0063LHPIly1fjyek9hydqj30920fuq3k.jpg)
 
 
 接下来看到的就是 `动量滚动` 当快速在屏幕上滑动一段距离的时候，会根据滑动的距离和时间计算出动量，并生成滚动动画。
