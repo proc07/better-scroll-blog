@@ -374,7 +374,7 @@ BScroll.prototype._end = function (e) {
     }
 ```
 
-// resetPosition 介绍，可在 `core.js` 中查看。
+- **resetPosition：** 返回值两种情况：`true` `false`。作用：如果超出滚动范围之外，则滚动回 0 或 maxScroll 位置
 
 ```javascript
 BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
@@ -403,7 +403,7 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
   }
 ```
 
-- **resetPosition：** 返回值两种情况：`true` `false`。作用：如果超出滚动范围之外，则滚动回 0 或 maxScroll 位置
+在 `touchmove` 时候若拖拽超过 `maxScroll` 滚动范围，则 `touchend` 时触发该函数返回 `true`。
 
 ```javascript
     this.isInTransition = false
@@ -412,15 +412,15 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
     let newX = Math.round(this.x)
     let newY = Math.round(this.y)
 
-    // we scrolled less than 15 pixels  
+    // we scrolled less than 15 pixels
     if (!this.moved) {
       if (this.options.wheel) {
         // className = 'wheel-scroll' 说明点击的位置是中间的缝隙 注：wheel-item元素上下之间存在一些缝隙
         if (this.target && this.target.className === 'wheel-scroll') {
           let index = Math.abs(Math.round(newY / this.itemHeight))
-          /**
-           * pointY：手指离开屏幕位置距离body的长度
-           * offset([wheel-scroll]).top：wheel-scroll元素距离body的(定位)长度(且加上自带的margin-top: 68px)
+          /** 
+           * pointY：点击位置距离body的长度
+           * offset('wheel-scroll').top：wheel-scroll元素距离body的(定位)长度(且加上自带的margin-top: 68px)
            * _offset：以上两个相加得出：中间选项位置距离你点击位置之间的长度及为偏移量
            */
           let _offset = Math.round((this.pointY + offset(this.target).top - this.itemHeight / 2) / this.itemHeight)
@@ -429,24 +429,26 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
         this.scrollToElement(this.target, this.options.wheel.adjustTime || 400, true, true, ease.swipe)
       } else {
         // 触发 click tap 事件
-        if (this.options.tap) {
-          tap(e, this.options.tap)
-        }
-
-        if (this.options.click) {
-          click(e)
-        }
+        // some code here...
       }
       this.trigger('scrollCancel')
       return
     }
 
     this.scrollTo(newX, newY)
+```
 
-    // 为正或负数(下面辨别移动方向) = (结束位置 - 开始位置)
+![wheel-scroll图片说明](http://wx4.sinaimg.cn/large/0063LHPIly1fjyek9hydqj30920fuq3k.jpg "wheel")
+
+
+接下来看到的就是 `动量滚动` 当快速在屏幕上滑动一段距离的时候，会根据滑动的距离和时间计算出动量，并生成滚动动画。
+
+```javascript
+    // delta 为正或负数(下面辨别移动方向) = (结束位置 - 开始位置)
     let deltaX = newX - this.absStartX
     let deltaY = newY - this.absStartY
 
+    // direction作用：判断 snap 组件当前滑动到上一张还是下一张。
     this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0
     this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0
 
@@ -468,7 +470,59 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
     } else {
       // some code here...
     }
+```
 
+开启动量滚动的三个条件：`options.momentum` 配置中开启、滑动的时间需要小于 `momentumLimitTime` 、移动的距离需要大于 `momentumLimitDistance`，才能开启。
+
+下方我将 `momentum` 代码贴出来了。
+
+```javascript
+/** 
+ *  current  结束位置
+ *  start    开始位置
+ *  time     时长
+ *  lowerMargin 滚动区域 maxScroll
+ *  wrapperSize 当滚动超过边缘的时候会有一小段回弹动画 (bounce)
+ *
+ *  distance 距离
+ *  speed    速度
+ *  deceleration 减速度(系数) 0.001
+ *  destination  目的地
+ */
+export function momentum(current, start, time, lowerMargin, wrapperSize, options) {
+  let distance = current - start
+  let speed = Math.abs(distance) / time
+
+  let {deceleration, itemHeight, swipeBounceTime, wheel, swipeTime} = options
+  let duration = swipeTime
+  let rate = wheel ? 4 : 15
+  // 惯性拖拽 = 最后的位置 + 速度 / 摩擦系数 * 方向
+  let destination = current + speed / deceleration * (distance < 0 ? -1 : 1)
+
+  if (wheel && itemHeight) {
+    destination = Math.round(destination / itemHeight) * itemHeight
+  }
+  // 目的地(超过)最大的滚动范围 maxScroll
+  if (destination < lowerMargin) {
+    // wrapperSize 是否开启回弹
+    destination = wrapperSize ? lowerMargin - (wrapperSize / rate * speed) : lowerMargin
+    duration = swipeBounceTime
+  } else if (destination > 0) {
+    destination = wrapperSize ? wrapperSize / rate * speed : 0
+    duration = swipeBounceTime
+  }
+  // 如果未触发以上两种条件(未到达边界)，则动量滚动到计算出来的位置
+
+  return {
+    destination: Math.round(destination),
+    duration
+  }
+}
+```
+
+以上计算出来动量滚动的位置，接下来应该
+
+```javascript
     let easing = ease.swipe
     if (this.options.snap) {
       let snap = this._nearestSnap(newX, newY)
