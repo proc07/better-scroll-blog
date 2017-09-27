@@ -295,13 +295,13 @@ BScroll.prototype._translate = function (x, y) {
 我们继续看...
 
 ```javascript
-    if (timestamp - this.startTime > this.options.momentumLimitTime) {
-      this.startTime = timestamp
-      this.startX = this.x
-      this.startY = this.y
+  if (timestamp - this.startTime > this.options.momentumLimitTime) {
+    this.startTime = timestamp
+    this.startX = this.x
+    this.startY = this.y
 
-      // ...
-    }
+    // ...
+  }
 ```
 
 为什么 `timestamp - this.startTime` (即触发 start 到 move 时用的时间) 大于 300ms，会重新赋值这3个参数？
@@ -403,7 +403,7 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
   }
 ```
 
-在 `touchmove` 时候若拖拽超过 `maxScroll` 滚动范围，则 `touchend` 时触发该函数返回 `true`。
+分析 `resetPosition`：在 `touchmove` 时候若拖拽超过 `maxScroll` 滚动范围，则 `touchend` 时触发该函数返回 `true`。
 
 ```javascript
     // 表示结束了 transition 过渡动画
@@ -439,7 +439,7 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
     this.scrollTo(newX, newY)
 ```
 
-自己截图画的 wheel 图片说明；
+自己截图画的 **wheel** 说明；
 ![wheel-scroll图片说明](http://wx4.sinaimg.cn/large/0063LHPIly1fjyek9hydqj30920fuq3k.jpg)
 
 接下来看到的就是 `动量滚动` 当快速在屏幕上滑动一段距离的时候，会根据滑动的距离和时间计算出动量，并生成滚动动画。
@@ -479,9 +479,9 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
     }
 ```
 
-开启动量滚动的三个条件：`options.momentum` 配置、滑动时间需小于 `momentumLimitTime` 、移动距离需大于 `momentumLimitDistance`。
+开启动量滚动的三个条件：`options.momentum` 配置、滑动时间需小于 `momentumLimitTime` 、移动距离需大于 `momentumLimitDistance`。调用完 `momentum` 方法后得出最后的位置与时间。
 
-下方我将 `momentum` 代码贴出来分析下了。
+下面我们来看看 `momentum` 方法是如何实现的。
 
 ```javascript
 /** 
