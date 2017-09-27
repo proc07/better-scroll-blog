@@ -406,6 +406,7 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
 在 `touchmove` 时候若拖拽超过 `maxScroll` 滚动范围，则 `touchend` 时触发该函数返回 `true`。
 
 ```javascript
+    // 表示结束了 transition 过渡动画
     this.isInTransition = false
 
     // ensures that the last position is rounded
@@ -438,8 +439,8 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
     this.scrollTo(newX, newY)
 ```
 
+自己截图画的 wheel 图片说明；
 ![wheel-scroll图片说明](http://wx4.sinaimg.cn/large/0063LHPIly1fjyek9hydqj30920fuq3k.jpg)
-
 
 接下来看到的就是 `动量滚动` 当快速在屏幕上滑动一段距离的时候，会根据滑动的距离和时间计算出动量，并生成滚动动画。
 
@@ -448,7 +449,7 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
     let deltaX = newX - this.absStartX
     let deltaY = newY - this.absStartY
 
-    // direction作用：判断 snap 组件当前滑动到上一张还是下一张。
+    // direction作用：在 snap 组件判断当前滑动到上一张还是下一张。
     this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0
     this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0
 
@@ -458,23 +459,29 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
 
     let time = 0
     // start momentum animation if needed
-    if (this.options.momentum && duration < this.options.momentumLimitTime && (absDistY > this.options.momentumLimitDistance || absDistX > this.options.momentumLimitDistance)) {
+    if (
+      this.options.momentum && 
+      duration < this.options.momentumLimitTime && 
+      (absDistY > this.options.momentumLimitDistance || absDistX > this.options.momentumLimitDistance)
+    ) {
       let momentumX = this.hasHorizontalScroll ? momentum(this.x, this.startX, duration, this.maxScrollX, this.options.bounce ? this.wrapperWidth : 0, this.options)
         : {destination: newX, duration: 0}
       let momentumY = this.hasVerticalScroll ? momentum(this.y, this.startY, duration, this.maxScrollY, this.options.bounce ? this.wrapperHeight : 0, this.options)
         : {destination: newY, duration: 0}
+
       newX = momentumX.destination
       newY = momentumY.destination
       time = Math.max(momentumX.duration, momentumY.duration)
+      // 因为开启动量滚动，所以继续启动 transition 过渡
       this.isInTransition = 1
     } else {
       // some code here...
     }
 ```
 
-开启动量滚动的三个条件：`options.momentum` 配置中开启、滑动的时间需要小于 `momentumLimitTime` 、移动的距离需要大于 `momentumLimitDistance`，才能开启。
+开启动量滚动的三个条件：`options.momentum` 配置、滑动时间需小于 `momentumLimitTime` 、移动距离需大于 `momentumLimitDistance`。
 
-下方我将 `momentum` 代码贴出来了。
+下方我将 `momentum` 代码贴出来分析下了。
 
 ```javascript
 /** 
@@ -520,27 +527,12 @@ export function momentum(current, start, time, lowerMargin, wrapperSize, options
 }
 ```
 
-以上计算出来动量滚动的位置，接下来应该
+动量距离也拿到了，接下来就应该执行滚动了。
 
 ```javascript
-    let easing = ease.swipe
-    if (this.options.snap) {
-      let snap = this._nearestSnap(newX, newY)
-      this.currentPage = snap
-      // time 以滚动的距离与300ms比较取值
-      time = this.options.snapSpeed || Math.max(
-          Math.max(
-            Math.min(Math.abs(newX - snap.x), 1000),
-            Math.min(Math.abs(newY - snap.y), 1000)
-          ), 300)
-      newX = snap.x
-      newY = snap.y
+    // some code here...
 
-      this.directionX = 0
-      this.directionY = 0
-      easing = ease.bounce
-    }
-    // 进入执行滚动到最后的位置(启动了动量)
+    // 进入执行滚动到最后的位置 (不相等说明开启了动量滚动，反之相等未开启)
     if (newX !== this.x || newY !== this.y) {
       // change easing function when scroller goes out of the boundaries
       if (newX > 0 || newX < this.maxScrollX || newY > 0 || newY < this.maxScrollY) {
@@ -551,5 +543,7 @@ export function momentum(current, start, time, lowerMargin, wrapperSize, options
     }
 
     // some code here...
-  }
+}
 ```
+
+`Bscroll` 插件中的核心3大方法就分析完毕了。
