@@ -9,25 +9,24 @@ better-scroll 1.2.2 源码分析
 
 ## 目录
 ```
-|
 |——src 
-| |—— scroll : 核心代码
-| |    |____ core : 
-| |    |____ event : 
-| |    |____ init : 
-| |    |____ pulldown : 
-| |    |____ pullup : 
-| |    |____ scrollbar : 
-| |    |____ snap : 
-| |    |____ wheel : 
+| |—— scroll : 核心功能
+| |    |____ core : 处理滚动三大事件、滚动动画有关的函数。
+| |    |____ event : 监听滚动时派发的操作事件 (发布/订阅者模式)
+| |    |____ init : 初始化：参数配置、DOM 绑定事件、调用其他扩展插件
+| |    |____ pulldown : 下拉刷新功能
+| |    |____ pullup : 上拉加载更多功能
+| |    |____ scrollbar : 生成滚动条、滚动时实时计算大小与位置
+| |    |____ snap : 扩展的轮播图及一系列操作
+| |    |____ wheel : 扩展的picker插件操作
 | |—— util 工具库
-| |    |____ debug : 
-| |    |____ dom : 
-| |    |____ ease : 
-| |    |____ lang : 
-| |    |____ momentum : 
-| |    |____ raf : 
-| |
+| |    |____ debug : 发出警告
+| |    |____ dom : 关于 dom 元素操作（缓存、浏览器兼容、绑定、事件、属性...）
+| |    |____ ease : 贝塞尔曲线
+| |    |____ lang : 获取时间戳、拷贝函数
+| |    |____ momentum : 动量公式
+| |    |____ raf : 定时器 requestAnimationFrame
+| |——index.js 导入全部文件，调用初始化函数
 ```
 
 ## BScroll 整体思路
