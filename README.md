@@ -1,11 +1,11 @@
 better-scroll 1.2.2 源码分析
 ===========================
 ## 说明
->  第一次写，在源码中若有分析不对或者没说明清楚，请直接在 Issues 中提出，我会尽快修改！
+>  这是我第一次写，在源码中若有分析不对或者没说明清楚，请直接在 Issues 中提出，我会尽快修改！
 
 >  不懂使用的童鞋可以去 [better-scroll官方API文档](https://ustbhuangyi.github.io/better-scroll/doc/options.html "better-scroll 最新文档") 很详细。
 
->  如果对您有帮助，您可以在我的[github](https://github.com/jxZhangLi/better-scroll "better-scroll 源码分析")中点右上角 "Star" 支持我一下 谢谢！ ^_^
+>  如果对您有帮助，您可以在我的 [github](https://github.com/jxZhangLi/better-scroll "better-scroll 源码分析") 中点右上角 "Star" 支持我一下 谢谢！ ^_^
 
 ## 目录
 ```
@@ -380,7 +380,7 @@ BScroll.prototype._end = function (e) {
     }
 ```
 
-- **resetPosition：** 返回值两种情况：`true` `false`。作用：如果超出滚动范围之外，则滚动回 0 或 maxScroll 位置
+- **resetPosition：** 返回值两种情况：`true` `false`。作用：如果超出滚动范围之外，则滚动回 0 或 maxScroll 位置。
 
 ```javascript
 BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
@@ -410,6 +410,8 @@ BScroll.prototype.resetPosition = function (time = 0, easeing = ease.bounce) {
 ```
 
 分析 `resetPosition`：在 `touchmove` 时候若拖拽超过 `maxScroll` 滚动范围，则 `touchend` 时触发该函数返回 `true`。
+
+继续 `_end` 方法分析
 
 ```javascript
     // 表示结束了 transition 过渡动画
@@ -553,6 +555,4 @@ export function momentum(current, start, time, lowerMargin, wrapperSize, options
 }
 ```
 
-
-
-- **总结** `Bscroll` 插件中的3大核心方法就分析完毕了。回过头来看
+- **结束语** 以上就是 `Bscroll` 插件中的 `start` `move` `end` 核心方法分析。回过头来看应该会有大概的思路了。我分析的可能不是很好，希望能帮助到你。
