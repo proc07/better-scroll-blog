@@ -3,7 +3,7 @@ better-scroll 1.2.2 源码分析
 ## 说明
 >  在源码中若有分析不对或者没说明清楚，请直接在 Issues 中提出，我会尽快修改！
 
->  better-scroll使用方法和参数的[官方文档](https://ustbhuangyi.github.io/better-scroll/doc/options.html "better-scroll 最新文档")，下面我将私有的方法和参数进行分析说明。
+>  better-scroll[官方使用文档](https://ustbhuangyi.github.io/better-scroll/doc/options.html "better-scroll 最新文档")。
 
 >  如果对您有帮助，您可以点右上角 "Star" 支持我一下 谢谢！ ^_^
 
