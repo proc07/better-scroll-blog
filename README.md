@@ -1,9 +1,9 @@
 better-scroll 1.2.2 源码分析
 ===========================
 ## 说明
->  在源码中若有分析不对或者没说明清楚，请直接在 Issues 中提出，我会尽快修改！
+>  第一次写，在源码中若有分析不对或者没说明清楚，请直接在 Issues 中提出，我会尽快修改！
 
->  better-scroll[官方使用文档](https://ustbhuangyi.github.io/better-scroll/doc/options.html "better-scroll 最新文档")。
+>  不懂使用的童鞋可以去 [better-scroll官方API文档](https://ustbhuangyi.github.io/better-scroll/doc/options.html "better-scroll 最新文档") 很详细。
 
 >  如果对您有帮助，您可以点右上角 "Star" 支持我一下 谢谢！ ^_^
 
@@ -544,6 +544,7 @@ export function momentum(current, start, time, lowerMargin, wrapperSize, options
       if (newX > 0 || newX < this.maxScrollX || newY > 0 || newY < this.maxScrollY) {
         easing = ease.swipeBounce
       }
+      // 最后滚动完毕
       this.scrollTo(newX, newY, time, easing)
       return
     }
@@ -552,4 +553,6 @@ export function momentum(current, start, time, lowerMargin, wrapperSize, options
 }
 ```
 
-`Bscroll` 插件中的核心3大方法就分析完毕了。
+
+
+- **总结** `Bscroll` 插件中的3大核心方法就分析完毕了。回过头来看
