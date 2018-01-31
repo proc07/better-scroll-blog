@@ -555,4 +555,4 @@ export function momentum(current, start, time, lowerMargin, wrapperSize, options
 }
 ```
 
-- **结束语** 以上就是 `Bscroll` 插件中的 `start` `move` `end` 核心方法分析（src文件夹代码中还有其他JS代码注释）。其实里面还要很多东西可以学习的（上拉下拉功能、picker...等等）。我分析的可能不是很好，希望能帮助到你。
+- **结束语** （src文件夹代码中还有其他JS代码注释）。其实里面还要很多东西可以学习的（上拉下拉功能、picker...等等）。我分析的可能不是很好，希望能帮助到你。
