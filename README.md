@@ -13,6 +13,3 @@ better-scroll V1.8.0 源码分析
 - [x] [_start、_move、_end（三大核心方法流程）](https://github.com/jxZhangLi/better-scroll-blog/issues/1 "三大核心方法流程")
 - [x] [momentum（惯性滚动实现原理）](https://github.com/jxZhangLi/better-scroll-blog/issues/2 "better-scroll 惯性滚动实现原理")
 - [x] [observeDOM（监听DOM自动重新计算）](https://github.com/jxZhangLi/better-scroll-blog/issues/3 "better-scroll 监听DOM自动重新计算")
-- [ ] [功能4](https://github.com/jxZhangLi/better-scroll "better-scroll 源码分析")
-- [ ] [功能5](https://github.com/jxZhangLi/better-scroll "better-scroll 源码分析")
-- [ ] [功能6](https://github.com/jxZhangLi/better-scroll "better-scroll 源码分析")
